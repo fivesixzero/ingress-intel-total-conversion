@@ -1,6 +1,8 @@
 ingress intel total conversion (IITC)
 =====================================
 
+_This branch, [fivesixzero/ingress-intel-total-conversion](https://github.com/fivesixzero/ingress-intel-total-conversion), is being primarily used as a learning exercise for JavaScript, Android development using IntelliJ IDEs._
+
 Since the [breunigs](https://github.com/breunigs/ingress-intel-total-conversion) IITC branch was deleted,
 [Jon Atkins](https://github.com/jonatkins) created this one to continue some development.
 
