@@ -55,14 +55,9 @@ public class IITC_WebView extends WebView {
         mSettings.setAppCacheEnabled(true);
         mSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
         mSettings.setAppCachePath(getContext().getCacheDir().getAbsolutePath());
-        mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
+        //mSettings.setDatabasePath(getContext().getApplicationInfo().dataDir + "/databases/");
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            setWebContentsDebuggingEnabled(true);
-            mJsInterface = new IITC_JSInterfaceKitkat(mIitc);
-        } else {
-            mJsInterface = new IITC_JSInterface(mIitc);
-        }
+        mJsInterface = new IITC_JSInterface(mIitc);
 
         addJavascriptInterface(mJsInterface, "android");
         mSharedPrefs = PreferenceManager.getDefaultSharedPreferences(mIitc);
@@ -74,11 +69,7 @@ public class IITC_WebView extends WebView {
             public void run() {
                 if (isInFullscreen() && (getFullscreenStatus() & (FS_NAVBAR)) != 0) {
                     int systemUiVisibility = SYSTEM_UI_FLAG_HIDE_NAVIGATION;
-                    // in immersive mode the user can interact with the app while the navbar is hidden
-                    // this mode is available since KitKat
-                    // you can leave this mode by swiping down from the top of the screen. this does only work
-                    // when the app is in total-fullscreen mode
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT && (mFullscreenStatus & FS_SYSBAR) != 0) {
+                    if ((mFullscreenStatus & FS_SYSBAR) != 0) {
                         systemUiVisibility |= SYSTEM_UI_FLAG_IMMERSIVE;
                     }
                     setSystemUiVisibility(systemUiVisibility);
