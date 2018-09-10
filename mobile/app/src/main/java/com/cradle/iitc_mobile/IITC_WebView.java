@@ -40,8 +40,12 @@ public class IITC_WebView extends WebView {
     private Runnable mNavHider;
     private boolean mDisableJs = false;
     private String mDefaultUserAgent;
-    private static final String mDesktopUserAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:17.0)" +
-            " Gecko/20130810 Firefox/17.0 Iceweasel/17.0.8";
+    // Updated default user agent replacement
+    private static final String mDesktopUserAgent =
+            "Mozilla/5.0 (Linux; Android 6.0; vivo 1713 Build/MRA58K)" +
+            "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.124 Mobile Safari/537.36";
+    //private static final String mDesktopUserAgent = "Mozilla/5.0 (X11; Linux x86_64; rv:17.0)" +
+    //        " Gecko/20130810 Firefox/17.0 Iceweasel/17.0.8";
 
     // init web view
     private void iitc_init(final Context c) {
