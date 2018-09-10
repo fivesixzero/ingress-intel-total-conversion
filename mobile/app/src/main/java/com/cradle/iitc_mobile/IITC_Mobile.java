@@ -42,6 +42,12 @@ import android.widget.SearchView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Cache;
+import com.android.volley.Network;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.BasicNetwork;
+import com.android.volley.toolbox.DiskBasedCache;
+import com.android.volley.toolbox.HurlStack;
 import com.cradle.iitc_mobile.IITC_NavigationHelper.Pane;
 import com.cradle.iitc_mobile.prefs.PreferenceActivity;
 import com.cradle.iitc_mobile.share.ShareActivity;
@@ -52,6 +58,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -90,6 +97,9 @@ public class IITC_Mobile extends Activity
     private String mPermalink = null;
     private String mSearchTerm = "";
 
+    // Prepare Volley RequestQueue
+    private RequestQueue mRequestQueue;
+
     // Used for custom back stack handling
     private final Stack<Pane> mBackStack = new Stack<IITC_NavigationHelper.Pane>();
     private Pane mCurrentPane = Pane.MAP;
@@ -105,6 +115,12 @@ public class IITC_Mobile extends Activity
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Init Volley RequestQueue
+        Cache requestQueueCache = new DiskBasedCache(getCacheDir(), 1024 * 1024); // 1 MB local cache
+        Network requestQueueNetwork = new BasicNetwork(new HurlStack());
+        mRequestQueue = new RequestQueue(requestQueueCache, requestQueueNetwork);
+        mRequestQueue.start();
 
         // enable progress bar above action bar
         requestWindowFeature(Window.FEATURE_PROGRESS);
@@ -743,7 +759,7 @@ public class IITC_Mobile extends Activity
      * called by IITC_WebViewClient when the Google login form is opened.
      */
     public void onReceivedLoginRequest(final IITC_WebViewClient client, final WebView view, final String realm,
-            final String account, final String args) {
+                                       final String account, final String args) {
         mLogin = new IITC_DeviceAccountLogin(this, view, client);
         mLogin.startLogin(realm, account, args);
     }
@@ -931,6 +947,8 @@ public class IITC_Mobile extends Activity
     public IITC_UserLocation getUserLocation() {
         return mUserLocation;
     }
+
+    public RequestQueue getRequestQueue() { return mRequestQueue; }
 
     public interface ResponseHandler {
         void onActivityResult(int resultCode, Intent data);

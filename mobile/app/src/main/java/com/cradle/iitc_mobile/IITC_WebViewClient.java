@@ -35,14 +35,18 @@ public class IITC_WebViewClient extends WebViewClient {
 
     public static boolean isIntelUrl(String url) {
         return
-            url.startsWith("http://ingress.com/intel") ||
+            // Hack to allow 2FA callback to work properly
+            // Callback URL has the ingress.com url at the end but starts with a google.com URL
+            url.contains("ingress.com/intel") ||
+            url.contains("ingress.com/mission");
+            /*url.startsWith("http://ingress.com/intel") ||
             url.startsWith("https://ingress.com/intel") ||
             url.startsWith("http://ingress.com/mission/") ||
             url.startsWith("https://ingress.com/mission/") ||
             url.startsWith("http://www.ingress.com/intel") ||
             url.startsWith("https://www.ingress.com/intel") ||
             url.startsWith("http://www.ingress.com/mission/") ||
-            url.startsWith("https://www.ingress.com/mission/");
+            url.startsWith("https://www.ingress.com/mission/");*/
     }
 
     private final IITC_Mobile mIitc;

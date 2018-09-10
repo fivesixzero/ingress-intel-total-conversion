@@ -1,19 +1,19 @@
 package com.cradle.iitc_mobile.async;
 
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.AsyncTask;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
 import com.cradle.iitc_mobile.IITC_Mobile;
 import com.cradle.iitc_mobile.Log;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-
-import java.io.IOException;
+import java.lang.ref.WeakReference;
 
 /*
  * this class parses the http response of a web page.
@@ -22,41 +22,40 @@ import java.io.IOException;
  */
 public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
 
-    private final IITC_Mobile mIitc;
+    private final WeakReference<Context> contextRef;
+    private final WeakReference<RequestQueue> rQueueRef;
+    private final WeakReference<IITC_Mobile> iitcRef; // TODO: Reconsider use of IITC_Mobile refs
 
     public CheckHttpResponse(final IITC_Mobile iitc) {
-        mIitc = iitc;
+        contextRef = new WeakReference<>(iitc.getApplicationContext());
+        rQueueRef = new WeakReference<>(iitc.getRequestQueue());
+        iitcRef = new WeakReference<>(iitc);
     }
 
     @Override
     protected Boolean doInBackground(final String... urls) {
+        final Context context = contextRef.get();
+        final RequestQueue rQueue = rQueueRef.get();
         // check http responses and disable splash screen on error
-        HttpGet httpRequest;
-        try {
-            httpRequest = new HttpGet(urls[0]);
-        } catch (final IllegalArgumentException e) {
-            Log.w(e);
-            return false;
+        if (rQueue != null && context != null) {
+            String url = urls[0];
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            // Handle Response
+                        }
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Log.d("HTTP Error Received: url=" + urls[0] + " code=" + error.networkResponse.statusCode);
+                            error.printStackTrace();
+                            // Tell IITC_Mobile to .runOnUiThread() to setLoadingState to false
+                        }
+                    });
         }
-        final HttpClient httpclient = new DefaultHttpClient();
-        HttpResponse response;
-        try {
-            response = httpclient.execute(httpRequest);
-            final int code = response.getStatusLine().getStatusCode();
-            if (code != HttpStatus.SC_OK) {
-                Log.d("received error code: " + code);
-                mIitc.runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        mIitc.setLoadingState(false);
-                    }
-                });
-                // TODO: remove when google login issue is fixed
-                if (urls[0].contains("uberauth=WILL_NOT_SIGN_IN")) { return true; }
-            }
-        } catch (final IOException e) {
-            Log.w(e);
-        }
+
         return false;
     }
 
@@ -65,6 +64,9 @@ public class CheckHttpResponse extends AsyncTask<String, Void, Boolean> {
      */
     @Override
     protected void onPostExecute(final Boolean aBoolean) {
+        //final Context context = contextRef.get();
+        //final RequestQueue rQueue = rQueueRef.get();
+        final IITC_Mobile mIitc = iitcRef.get();
         if (aBoolean) {
             Log.d("google auth error, redirecting to work-around page");
             final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(mIitc);
