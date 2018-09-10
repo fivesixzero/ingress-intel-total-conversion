@@ -303,8 +303,7 @@ if buildMobile:
 
 
     if buildMobile != 'copyonly':
-        # now launch 'ant' to build the mobile project
-        # retcode = os.system("ant %s -buildfile %s %s" % (antOptions, antBuildFile, buildMobile))
+        # now launch gradle to build the mobile project
         os.chdir("mobile")
         retcode = os.system("./gradlew build")
         os.chdir("..")
@@ -313,12 +312,13 @@ if buildMobile:
             print ("Error: mobile app failed to build. ant returned %d" % retcode)
             exit(1) # ant may return 256, but python seems to allow only values <256
         else:
-            shutil.copy("mobile/bin/IITC_Mobile-%s.apk" % buildMobile, os.path.join(outDir,"IITC_Mobile-%s.apk" % buildMobile) )
-
+            print ("Success: APKs should be under app/build/outputs/");
+        # use a quick find command to list out the APKs present in the build directory
+        if os.name == 'posix':
+            os.system("find . | grep \\\\.apk$")
 
 # run any postBuild commands
 for cmd in settings.get('postBuild',[]):
     os.system ( cmd )
-
 
 # vim: ai si ts=4 sw=4 sts=4 et
