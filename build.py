@@ -301,8 +301,10 @@ if buildMobile:
             'force-https*', 'speech-search*', 'basemap-cloudmade*',
             'scroll-wheel-zoom-disable*'))
 
-
     if buildMobile != 'copyonly':
+        # do things we need to do pre-build if we're on a posix environment
+        if os.name == 'posix' and os.getenv("ANDROID_HOME") and os.path.isfile("mobile/local.properties"):
+            os.system("mv mobile/local.properties mobile/non-posix-localprops")
         # now launch gradle to build the mobile project
         os.chdir("mobile")
         retcode = os.system("./gradlew build")
@@ -313,9 +315,9 @@ if buildMobile:
             exit(1) # ant may return 256, but python seems to allow only values <256
         else:
             print ("Success: APKs should be under app/build/outputs/");
-        # use a quick find command to list out the APKs present in the build directory
-        if os.name == 'posix':
-            os.system("find . | grep \\\\.apk$")
+        # do things we need to do post-gradle-build if we're on a posix environment
+        if os.name == 'posix' and os.path.isfile("mobile/non-posix-localprops"):
+            os.system("mv mobile/non-posix-localprops mobile/local.properties")
 
 # run any postBuild commands
 for cmd in settings.get('postBuild',[]):
